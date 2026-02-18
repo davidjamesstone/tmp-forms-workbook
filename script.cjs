@@ -1,7 +1,6 @@
 
 const xlsx = require('xlsx')
 const { ComponentType } = require('@defra/forms-model')
-const { required } = require('joi')
 const workbook = xlsx.utils.book_new()
 const contentTypes = [
   ComponentType.Details,
