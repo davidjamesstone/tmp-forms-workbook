@@ -39,13 +39,21 @@ const dataTypes = {
   [ComponentType.HiddenField]: 'string',
   [ComponentType.PaymentField]: 'string',
 }
-const wsHeaders = ['Question title', 'Short description', 'Type', 'Data type', 'Required']
+const wsHeaders = ['Question title', 'Short description', 'Type', 'Data type', 'Component required', 'Page is conditional', 'Required']
 
 defs.forEach((def, i) => {
-  const components = def.pages.flatMap(p => p.components?.filter(c => !contentTypes.includes(c.type)) ?? [])
-  const wsRows = components.map(c => [c.title, c.shortDescription, c.type, dataTypes[c.type], c.options.required])
+  const wsRows = []
+  def.pages.forEach(p => {
+    const formComponents = p.components?.filter(c => !contentTypes.includes(c.type)) ?? []
+    if (formComponents.length) {
+      formComponents.forEach(c => {
+        const required = p.condition ? false : c.options.required
+        wsRows.push([c.title, c.shortDescription, c.type, dataTypes[c.type], c.options.required, !!p.condition, required])
+      })
+    }
+  })
 
-  const worksheet = xlsx.utils.aoa_to_sheet([wsHeaders, ...wsRows], { })
+  const worksheet = xlsx.utils.aoa_to_sheet([wsHeaders, ...wsRows])
   xlsx.utils.book_append_sheet(workbook, worksheet, files[i][0])
 })
 
